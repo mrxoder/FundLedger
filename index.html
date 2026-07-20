@@ -567,7 +567,7 @@ document.getElementById('addCurBtn').addEventListener('click', async () => {
   await refreshBalances();
 
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.register('/FundLedger/sw.js').catch(() => {});
   }
 })();
 </script>
