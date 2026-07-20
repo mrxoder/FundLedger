@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1c2b22">
+<title>Fund Ledger</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#eef1ea;
+    --paper-raised:#f7f8f4;
+    --ink:#1c2b22;
+    --ink-soft:#5b6a5f;
+    --line:#d6dccf;
+    --deposit:#2f6f4e;
+    --deposit-soft:#e3efe6;
+    --expense:#a34424;
+    --expense-soft:#f5e5dd;
+    --gold:#c98a3e;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    padding-bottom:env(safe-area-inset-bottom);
+    overscroll-behavior-y:none;
+  }
+  .app{max-width:480px;margin:0 auto;padding:0 18px 100px;}
+
+  header.top{
+    padding:28px 4px 14px;
+    display:flex;align-items:baseline;justify-content:space-between;
+  }
+  header.top h1{
+    font-family:'Fraunces',serif;
+    font-weight:650;
+    font-size:26px;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  header.top button{
+    background:none;border:none;color:var(--ink-soft);
+    font-family:'JetBrains Mono',monospace;font-size:12px;
+    letter-spacing:.04em;cursor:pointer;padding:6px;
+  }
+
+  .passbook{
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:18px;
+    padding:22px 20px 18px;
+    position:relative;
+    overflow:hidden;
+    margin-bottom:18px;
+  }
+  .passbook::after{
+    content:"";
+    position:absolute;left:0;right:0;bottom:0;height:10px;
+    background-image:radial-gradient(circle, var(--paper) 3.5px, transparent 3.6px);
+    background-size:16px 16px;
+    background-position:8px 4px;
+    transform:translateY(50%);
+  }
+  .passbook .main-total{padding-bottom:14px;}
+  .passbook .main-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.12em;color:rgba(238,241,234,0.55);
+    text-transform:uppercase;
+  }
+  .passbook .main-amount{
+    font-family:'JetBrains Mono',monospace;
+    font-size:32px;font-weight:500;letter-spacing:-0.01em;
+    margin-top:3px;
+  }
+  .passbook .breakdown{
+    border-top:1px dashed rgba(238,241,234,0.22);
+    padding-top:12px;
+  }
+  .passbook .row{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding:5px 0;
+  }
+  .passbook .cur-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;letter-spacing:.06em;color:rgba(238,241,234,0.65);
+  }
+  .passbook .cur-amount{
+    font-family:'JetBrains Mono',monospace;
+    font-size:14.5px;font-weight:500;
+  }
+
+  .actions{display:flex;gap:10px;margin-bottom:22px;}
+  .actions button{
+    flex:1;border:none;border-radius:12px;padding:14px 0;
+    font-family:'Inter',sans-serif;font-weight:600;font-size:14px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:7px;
+  }
+  .actions .add-deposit{background:var(--deposit-soft);color:var(--deposit);}
+  .actions .add-expense{background:var(--expense-soft);color:var(--expense);}
+
+  .section-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink-soft);margin:22px 2px 10px;
+  }
+
+  .entry{
+    background:var(--paper-raised);border:1px solid var(--line);border-radius:12px;
+    padding:13px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px;
+  }
+  .entry .mark{
+    width:34px;height:34px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;flex-shrink:0;
+  }
+  .entry.deposit .mark{background:var(--deposit-soft);color:var(--deposit);}
+  .entry.expense .mark{background:var(--expense-soft);color:var(--expense);}
+  .entry .mid{flex:1;min-width:0;}
+  .entry .note{font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .entry .date{font-size:11.5px;color:var(--ink-soft);margin-top:2px;font-family:'JetBrains Mono',monospace;}
+  .entry .amtwrap{text-align:right;flex-shrink:0;}
+  .entry .amt{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:15px;}
+  .entry .amt-mga{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:1px;}
+  .entry.deposit .amt{color:var(--deposit);}
+  .entry.expense .amt{color:var(--expense);}
+  .entry .del{
+    background:none;border:none;color:var(--line);font-size:16px;cursor:pointer;
+    padding:4px 2px;flex-shrink:0;
+  }
+  .entry .del:hover{color:var(--expense);}
+
+  .empty{
+    text-align:center;color:var(--ink-soft);font-size:13.5px;
+    padding:30px 10px;font-family:'JetBrains Mono',monospace;
+  }
+
+  .sheet-backdrop{
+    position:fixed;inset:0;background:rgba(28,43,34,0.4);
+    display:none;align-items:flex-end;justify-content:center;z-index:20;
+  }
+  .sheet-backdrop.open{display:flex;}
+  .sheet{
+    background:var(--paper);width:100%;max-width:480px;max-height:88vh;overflow-y:auto;
+    border-radius:20px 20px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));
+    animation:up .2s ease-out;
+  }
+  @keyframes up{from{transform:translateY(24px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .sheet h2{font-family:'Fraunces',serif;font-weight:650;font-size:20px;margin:0 0 16px;}
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;font-size:11.5px;font-family:'JetBrains Mono',monospace;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;
+  }
+  .field input, .field select{
+    width:100%;padding:12px 13px;border-radius:10px;border:1px solid var(--line);
+    background:var(--paper-raised);font-size:16px;color:var(--ink);font-family:'Inter',sans-serif;
+  }
+  .field input:focus, .field select:focus{outline:2px solid var(--gold);outline-offset:1px;}
+  .rate-hint{font-size:12px;color:var(--ink-soft);margin-top:6px;}
+  .cur-toggle{display:flex;gap:8px;flex-wrap:wrap;}
+  .cur-toggle button{
+    flex:1;min-width:64px;padding:11px 0;border-radius:10px;border:1px solid var(--line);
+    background:var(--paper-raised);font-family:'JetBrains Mono',monospace;font-weight:500;
+    cursor:pointer;color:var(--ink-soft);
+  }
+  .cur-toggle button.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .sheet-buttons{display:flex;gap:10px;margin-top:6px;}
+  .sheet-buttons button{
+    flex:1;padding:14px 0;border-radius:10px;border:none;font-weight:600;font-size:14.5px;cursor:pointer;
+  }
+  .sheet-buttons .cancel{background:transparent;color:var(--ink-soft);}
+  .sheet-buttons .confirm{background:var(--ink);color:var(--paper);}
+
+  .cur-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);}
+  .cur-row:last-of-type{border-bottom:none;}
+  .cur-row .code{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;width:52px;flex-shrink:0;}
+  .cur-row .rate-field{flex:1;display:flex;align-items:center;gap:6px;}
+  .cur-row .rate-field span{font-size:12px;color:var(--ink-soft);white-space:nowrap;font-family:'JetBrains Mono',monospace;}
+  .cur-row .rate-field input{
+    width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);
+    background:var(--paper-raised);font-family:'JetBrains Mono',monospace;font-size:14px;
+  }
+  .cur-row .rm{background:none;border:none;color:var(--line);font-size:15px;cursor:pointer;flex-shrink:0;padding:4px;}
+  .cur-row .rm:hover{color:var(--expense);}
+  .cur-row.base .code{color:var(--gold);}
+  .add-currency-row{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);}
+  .add-currency-row input{
+    padding:11px 12px;border-radius:9px;border:1px solid var(--line);
+    background:var(--paper-raised);font-family:'JetBrains Mono',monospace;font-size:14px;
+  }
+  .add-currency-row input#newCurCode{width:76px;text-transform:uppercase;}
+  .add-currency-row input#newCurRate{flex:1;}
+  .add-currency-row button{
+    background:var(--ink);color:var(--paper);border:none;border-radius:9px;
+    padding:0 16px;font-weight:600;cursor:pointer;font-size:13px;
+  }
+  .settings-note{font-size:12.5px;color:var(--ink-soft);margin-top:14px;line-height:1.5;}
+
+  ::selection{background:var(--gold);color:var(--paper);}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1>Fund Ledger</h1>
+    <button id="settingsBtn">currencies ⚙</button>
+  </header>
+
+  <div class="passbook">
+    <div class="main-total">
+      <div class="main-label">Total in MGA</div>
+      <div class="main-amount" id="totalMGA">0 Ar</div>
+    </div>
+    <div class="breakdown" id="breakdown"></div>
+  </div>
+
+  <div class="actions">
+    <button class="add-deposit" id="openDeposit">＋ Deposit</button>
+    <button class="add-expense" id="openExpense">－ Expense</button>
+  </div>
+
+  <div class="section-label">History</div>
+  <div id="list"></div>
+</div>
+
+<div class="sheet-backdrop" id="backdrop">
+  <div class="sheet">
+    <h2 id="sheetTitle">Add deposit</h2>
+    <div class="field">
+      <label>Amount</label>
+      <input type="number" inputmode="decimal" id="amountInput" placeholder="0.00" step="0.01" min="0">
+    </div>
+    <div class="field">
+      <label>Currency</label>
+      <div class="cur-toggle" id="curToggle"></div>
+      <div class="rate-hint" id="rateHint"></div>
+    </div>
+    <div class="field">
+      <label>Note (optional)</label>
+      <input type="text" id="noteInput" placeholder="e.g. groceries, freelance payment">
+    </div>
+    <div class="sheet-buttons">
+      <button class="cancel" id="cancelBtn">Cancel</button>
+      <button class="confirm" id="confirmBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="settingsBackdrop">
+  <div class="sheet">
+    <h2>Currencies</h2>
+    <div id="currencyList"></div>
+    <div class="add-currency-row">
+      <input type="text" id="newCurCode" placeholder="EUR" maxlength="6">
+      <input type="number" id="newCurRate" placeholder="MGA per 1 unit" step="0.01" min="0">
+      <button id="addCurBtn">Add</button>
+    </div>
+    <p class="settings-note">MGA is your base currency and always equals 1. Rates you set here apply to new deposits and expenses only — past entries keep the rate that was active when you recorded them.</p>
+    <div class="sheet-buttons">
+      <button class="cancel" id="settingsCloseBtn">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DB_NAME = 'fundledger';
+const DB_VERSION = 1;
+let db;
+
+function openDB(){
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const _db = e.target.result;
+      if(!_db.objectStoreNames.contains('transactions')){
+        const store = _db.createObjectStore('transactions', { keyPath:'id', autoIncrement:true });
+        store.createIndex('date','date');
+      }
+      if(!_db.objectStoreNames.contains('settings')){
+        _db.createObjectStore('settings', { keyPath:'key' });
+      }
+    };
+    req.onsuccess = (e) => { db = e.target.result; resolve(db); };
+    req.onerror = (e) => reject(e);
+  });
+}
+
+function addTransaction(tx){
+  return new Promise((resolve, reject) => {
+    const t = db.transaction('transactions','readwrite');
+    const req = t.objectStore('transactions').add(tx);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = (e) => reject(e);
+  });
+}
+
+function deleteTransaction(id){
+  return new Promise((resolve, reject) => {
+    const t = db.transaction('transactions','readwrite');
+    t.objectStore('transactions').delete(id);
+    t.oncomplete = () => resolve();
+    t.onerror = (e) => reject(e);
+  });
+}
+
+function getAllTransactions(){
+  return new Promise((resolve, reject) => {
+    const t = db.transaction('transactions','readonly');
+    const req = t.objectStore('transactions').getAll();
+    req.onsuccess = () => resolve(req.result.sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id));
+    req.onerror = (e) => reject(e);
+  });
+}
+
+function setSetting(key, value){
+  return new Promise((resolve, reject) => {
+    const t = db.transaction('settings','readwrite');
+    t.objectStore('settings').put({key, value});
+    t.oncomplete = () => resolve();
+    t.onerror = (e) => reject(e);
+  });
+}
+
+function getSetting(key, fallback){
+  return new Promise((resolve, reject) => {
+    const t = db.transaction('settings','readonly');
+    const req = t.objectStore('settings').get(key);
+    req.onsuccess = () => resolve(req.result ? req.result.value : fallback);
+    req.onerror = (e) => reject(e);
+  });
+}
+
+let currencies = [{ code:'MGA', rate:1 }, { code:'USD', rate:4500 }]; // rate = MGA per 1 unit
+let pendingType = 'deposit';
+let pendingCur = 'MGA';
+
+function fmtNum(n, decimals){
+  return n.toLocaleString('en-US', {minimumFractionDigits:decimals, maximumFractionDigits:decimals});
+}
+function fmtAmount(amount, code){
+  if(code === 'MGA') return fmtNum(Math.round(amount), 0) + ' Ar';
+  return fmtNum(amount, 2) + ' ' + code;
+}
+function rateFor(code){
+  const c = currencies.find(c => c.code === code);
+  return c ? c.rate : 1;
+}
+
+async function saveCurrencies(){
+  await setSetting('currencies', currencies);
+}
+
+async function refreshBalances(){
+  const txs = await getAllTransactions();
+
+  const nativeBal = {};
+  currencies.forEach(c => nativeBal[c.code] = 0);
+  let totalMGA = 0;
+
+  for(const t of txs){
+    const signed = t.type === 'deposit' ? t.amount : -t.amount;
+    if(!(t.currency in nativeBal)) nativeBal[t.currency] = 0;
+    nativeBal[t.currency] += signed;
+    const rate = t.currency === 'MGA' ? 1 : (t.rateAtTime ?? rateFor(t.currency));
+    totalMGA += signed * rate;
+  }
+
+  document.getElementById('totalMGA').textContent = fmtAmount(totalMGA, 'MGA');
+
+  const breakdown = document.getElementById('breakdown');
+  const codes = currencies.map(c => c.code).filter(c => c !== 'MGA');
+  breakdown.innerHTML = codes.map(code => {
+    const bal = nativeBal[code] || 0;
+    return '<div class="row"><span class="cur-label">' + code + '</span><span class="cur-amount">' + fmtAmount(bal, code) + '</span></div>';
+  }).join('');
+
+  renderList(txs);
+}
+
+function renderList(txs){
+  const list = document.getElementById('list');
+  if(txs.length === 0){
+    list.innerHTML = '<div class="empty">No entries yet — add your first deposit or expense.</div>';
+    return;
+  }
+  list.innerHTML = txs.map(t => {
+    const amtStr = fmtAmount(t.amount, t.currency);
+    const sign = t.type === 'deposit' ? '+' : '\u2212';
+    const dateStr = new Date(t.date).toLocaleDateString('en-US', {month:'short', day:'numeric'});
+    const note = t.note ? escapeHtml(t.note) : (t.type === 'deposit' ? 'Deposit' : 'Expense');
+    const rate = t.currency === 'MGA' ? 1 : (t.rateAtTime ?? rateFor(t.currency));
+    const mgaEquiv = t.currency === 'MGA' ? '' :
+      ('<div class="amt-mga">@ ' + fmtNum(rate,0) + ' \u2192 ' + fmtAmount(t.amount * rate, 'MGA') + '</div>');
+    return '<div class="entry ' + t.type + '">' +
+        '<div class="mark">' + sign + '</div>' +
+        '<div class="mid">' +
+          '<div class="note">' + note + '</div>' +
+          '<div class="date">' + dateStr + ' \u00b7 ' + t.currency + '</div>' +
+        '</div>' +
+        '<div class="amtwrap">' +
+          '<div class="amt">' + sign + amtStr + '</div>' +
+          mgaEquiv +
+        '</div>' +
+        '<button class="del" data-id="' + t.id + '" aria-label="Delete entry">\u2715</button>' +
+      '</div>';
+  }).join('');
+
+  list.querySelectorAll('.del').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await deleteTransaction(Number(btn.dataset.id));
+      refreshBalances();
+    });
+  });
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+const backdrop = document.getElementById('backdrop');
+const sheetTitle = document.getElementById('sheetTitle');
+const amountInput = document.getElementById('amountInput');
+const noteInput = document.getElementById('noteInput');
+const curToggle = document.getElementById('curToggle');
+const rateHint = document.getElementById('rateHint');
+
+function buildCurToggle(){
+  curToggle.innerHTML = currencies.map(c =>
+    '<button type="button" data-cur="' + c.code + '">' + c.code + '</button>'
+  ).join('');
+  curToggle.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => setCur(btn.dataset.cur));
+  });
+}
+
+function setCur(code){
+  pendingCur = code;
+  curToggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.cur === code));
+  if(code === 'MGA'){
+    rateHint.textContent = '';
+  } else {
+    rateHint.textContent = "Locked in at today's rate: 1 " + code + " = " + fmtNum(rateFor(code),0) + " MGA. This won't change if you edit the rate later.";
+  }
+}
+
+function openSheet(type){
+  pendingType = type;
+  sheetTitle.textContent = type === 'deposit' ? 'Add deposit' : 'Add expense';
+  amountInput.value = '';
+  noteInput.value = '';
+  buildCurToggle();
+  setCur('MGA');
+  backdrop.classList.add('open');
+  setTimeout(() => amountInput.focus(), 50);
+}
+function closeSheet(){ backdrop.classList.remove('open'); }
+
+document.getElementById('openDeposit').addEventListener('click', () => openSheet('deposit'));
+document.getElementById('openExpense').addEventListener('click', () => openSheet('expense'));
+document.getElementById('cancelBtn').addEventListener('click', closeSheet);
+backdrop.addEventListener('click', (e) => { if(e.target === backdrop) closeSheet(); });
+
+document.getElementById('confirmBtn').addEventListener('click', async () => {
+  const amount = parseFloat(amountInput.value);
+  if(!amount || amount <= 0){ amountInput.focus(); return; }
+  await addTransaction({
+    type: pendingType,
+    currency: pendingCur,
+    amount: amount,
+    rateAtTime: pendingCur === 'MGA' ? 1 : rateFor(pendingCur),
+    note: noteInput.value.trim(),
+    date: new Date().toISOString()
+  });
+  closeSheet();
+  refreshBalances();
+});
+
+const settingsBackdrop = document.getElementById('settingsBackdrop');
+const currencyList = document.getElementById('currencyList');
+
+function renderCurrencyList(){
+  currencyList.innerHTML = currencies.map(c => {
+    if(c.code === 'MGA'){
+      return '<div class="cur-row base"><span class="code">MGA</span>' +
+        '<div class="rate-field"><span>base currency \u00b7 1 MGA = 1 MGA</span></div></div>';
+    }
+    return '<div class="cur-row">' +
+        '<span class="code">' + c.code + '</span>' +
+        '<div class="rate-field">' +
+          '<span>1 ' + c.code + ' =</span>' +
+          '<input type="number" step="0.01" min="0" value="' + c.rate + '" data-code="' + c.code + '" class="rate-edit">' +
+          '<span>MGA</span>' +
+        '</div>' +
+        '<button class="rm" data-code="' + c.code + '" aria-label="Remove currency">\u2715</button>' +
+      '</div>';
+  }).join('');
+
+  currencyList.querySelectorAll('.rate-edit').forEach(input => {
+    input.addEventListener('change', async () => {
+      const val = parseFloat(input.value);
+      if(!val || val <= 0){ return; }
+      const c = currencies.find(c => c.code === input.dataset.code);
+      if(c){ c.rate = val; await saveCurrencies(); refreshBalances(); }
+    });
+  });
+  currencyList.querySelectorAll('.rm').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      currencies = currencies.filter(c => c.code !== btn.dataset.code);
+      await saveCurrencies();
+      renderCurrencyList();
+      refreshBalances();
+    });
+  });
+}
+
+document.getElementById('settingsBtn').addEventListener('click', () => {
+  renderCurrencyList();
+  settingsBackdrop.classList.add('open');
+});
+document.getElementById('settingsCloseBtn').addEventListener('click', () => settingsBackdrop.classList.remove('open'));
+settingsBackdrop.addEventListener('click', (e) => { if(e.target === settingsBackdrop) settingsBackdrop.classList.remove('open'); });
+
+document.getElementById('addCurBtn').addEventListener('click', async () => {
+  const codeInput = document.getElementById('newCurCode');
+  const rateInputEl = document.getElementById('newCurRate');
+  const code = codeInput.value.trim().toUpperCase();
+  const rate = parseFloat(rateInputEl.value);
+  if(!code || code === 'MGA' || !rate || rate <= 0) return;
+  const existing = currencies.find(c => c.code === code);
+  if(existing){
+    existing.rate = rate;
+  } else {
+    currencies.push({ code, rate });
+  }
+  await saveCurrencies();
+  codeInput.value = '';
+  rateInputEl.value = '';
+  renderCurrencyList();
+  refreshBalances();
+});
+
+(async function init(){
+  await openDB();
+
+  const savedCurrencies = await getSetting('currencies', null);
+  if(savedCurrencies && savedCurrencies.length){
+    currencies = savedCurrencies;
+    if(!currencies.some(c => c.code === 'MGA')) currencies.unshift({ code:'MGA', rate:1 });
+  } else {
+    const legacyRate = await getSetting('exchangeRate', null);
+    if(legacyRate) currencies = [{ code:'MGA', rate:1 }, { code:'USD', rate:legacyRate }];
+    await saveCurrencies();
+  }
+
+  await refreshBalances();
+
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>
