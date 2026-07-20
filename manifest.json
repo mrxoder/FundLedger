@@ -1,7 +1,7 @@
 {
   "name": "Fund Ledger",
   "short_name": "Ledger",
-  "description": "Track deposits and expenses in USD and MGA",
+  "description": "Track deposits and expenses",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

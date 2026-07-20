@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1c2b22">
 <title>Fund Ledger</title>
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="/FundLedger/manifest.json">
+<link rel="apple-touch-icon" href="/FundLedger/icon-192.png">
+<link rel="icon" href="/FundLedger/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -23,6 +23,7 @@
     --expense:#a34424;
     --expense-soft:#f5e5dd;
     --gold:#c98a3e;
+    --gold-soft:#f3e6d0;
     --radius:14px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -35,69 +36,57 @@
     padding-bottom:env(safe-area-inset-bottom);
     overscroll-behavior-y:none;
   }
-  .app{max-width:480px;margin:0 auto;padding:0 18px 100px;}
+  .app{max-width:480px;margin:0 auto;padding:0 18px 92px;}
+  .page{display:none;}
+  .page.active{display:block;}
 
   header.top{
     padding:28px 4px 14px;
     display:flex;align-items:baseline;justify-content:space-between;
   }
   header.top h1{
-    font-family:'Fraunces',serif;
-    font-weight:650;
-    font-size:26px;
-    letter-spacing:-0.01em;
-    margin:0;
+    font-family:'Fraunces',serif;font-weight:650;font-size:26px;letter-spacing:-0.01em;margin:0;
   }
   header.top button{
     background:none;border:none;color:var(--ink-soft);
-    font-family:'JetBrains Mono',monospace;font-size:12px;
-    letter-spacing:.04em;cursor:pointer;padding:6px;
+    font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.04em;cursor:pointer;padding:6px;
   }
 
   .passbook{
-    background:var(--ink);
-    color:var(--paper);
-    border-radius:18px;
-    padding:22px 20px 18px;
-    position:relative;
-    overflow:hidden;
-    margin-bottom:18px;
+    background:var(--ink);color:var(--paper);border-radius:18px;
+    padding:22px 20px 18px;position:relative;overflow:hidden;margin-bottom:18px;
   }
   .passbook::after{
-    content:"";
-    position:absolute;left:0;right:0;bottom:0;height:10px;
+    content:"";position:absolute;left:0;right:0;bottom:0;height:10px;
     background-image:radial-gradient(circle, var(--paper) 3.5px, transparent 3.6px);
-    background-size:16px 16px;
-    background-position:8px 4px;
-    transform:translateY(50%);
+    background-size:16px 16px;background-position:8px 4px;transform:translateY(50%);
   }
-  .passbook .main-total{padding-bottom:14px;}
+  .passbook .main-total{padding-bottom:12px;}
+  .passbook .main-label-row{display:flex;justify-content:space-between;align-items:center;}
   .passbook .main-label{
-    font-family:'JetBrains Mono',monospace;
-    font-size:11px;letter-spacing:.12em;color:rgba(238,241,234,0.55);
-    text-transform:uppercase;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;
+    color:rgba(238,241,234,0.55);text-transform:uppercase;
   }
   .passbook .main-amount{
-    font-family:'JetBrains Mono',monospace;
-    font-size:32px;font-weight:500;letter-spacing:-0.01em;
-    margin-top:3px;
+    font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:500;letter-spacing:-0.01em;margin-top:3px;
   }
-  .passbook .breakdown{
-    border-top:1px dashed rgba(238,241,234,0.22);
-    padding-top:12px;
+  .view-cur-row{
+    display:flex;gap:6px;overflow-x:auto;padding-top:10px;margin:0 -2px;
+    scrollbar-width:none;
   }
-  .passbook .row{
-    display:flex;justify-content:space-between;align-items:baseline;
-    padding:5px 0;
+  .view-cur-row::-webkit-scrollbar{display:none;}
+  .view-cur-row button{
+    flex-shrink:0;background:rgba(238,241,234,0.1);border:1px solid rgba(238,241,234,0.18);
+    color:rgba(238,241,234,0.75);font-family:'JetBrains Mono',monospace;font-size:11px;
+    padding:5px 10px;border-radius:20px;cursor:pointer;letter-spacing:.03em;
   }
-  .passbook .cur-label{
-    font-family:'JetBrains Mono',monospace;
-    font-size:12px;letter-spacing:.06em;color:rgba(238,241,234,0.65);
-  }
-  .passbook .cur-amount{
-    font-family:'JetBrains Mono',monospace;
-    font-size:14.5px;font-weight:500;
-  }
+  .view-cur-row button.active{background:var(--gold);border-color:var(--gold);color:var(--ink);font-weight:700;}
+  .view-note{font-size:10.5px;color:rgba(238,241,234,0.4);margin-top:8px;font-family:'JetBrains Mono',monospace;}
+
+  .passbook .breakdown{border-top:1px dashed rgba(238,241,234,0.22);padding-top:12px;margin-top:14px;}
+  .passbook .row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;}
+  .passbook .cur-label{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;color:rgba(238,241,234,0.65);}
+  .passbook .cur-amount{font-family:'JetBrains Mono',monospace;font-size:14.5px;font-weight:500;}
 
   .actions{display:flex;gap:10px;margin-bottom:22px;}
   .actions button{
@@ -109,9 +98,13 @@
   .actions .add-expense{background:var(--expense-soft);color:var(--expense);}
 
   .section-label{
-    font-family:'JetBrains Mono',monospace;
-    font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
     color:var(--ink-soft);margin:22px 2px 10px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .section-label button{
+    background:none;border:none;color:var(--gold);font-family:'JetBrains Mono',monospace;
+    font-size:11px;cursor:pointer;letter-spacing:.06em;text-transform:none;
   }
 
   .entry{
@@ -119,8 +112,7 @@
     padding:13px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px;
   }
   .entry .mark{
-    width:34px;height:34px;border-radius:9px;
-    display:flex;align-items:center;justify-content:center;
+    width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;
     font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;flex-shrink:0;
   }
   .entry.deposit .mark{background:var(--deposit-soft);color:var(--deposit);}
@@ -133,20 +125,59 @@
   .entry .amt-mga{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:1px;}
   .entry.deposit .amt{color:var(--deposit);}
   .entry.expense .amt{color:var(--expense);}
-  .entry .del{
-    background:none;border:none;color:var(--line);font-size:16px;cursor:pointer;
-    padding:4px 2px;flex-shrink:0;
-  }
+  .entry .del{background:none;border:none;color:var(--line);font-size:16px;cursor:pointer;padding:4px 2px;flex-shrink:0;}
   .entry .del:hover{color:var(--expense);}
 
-  .empty{
-    text-align:center;color:var(--ink-soft);font-size:13.5px;
-    padding:30px 10px;font-family:'JetBrains Mono',monospace;
+  .empty{text-align:center;color:var(--ink-soft);font-size:13.5px;padding:30px 10px;font-family:'JetBrains Mono',monospace;}
+
+  /* Plans list */
+  .plan-card{
+    background:var(--paper-raised);border:1px solid var(--line);border-radius:14px;
+    padding:15px 16px;margin-bottom:10px;cursor:pointer;
+  }
+  .plan-card .ptitle{font-family:'Fraunces',serif;font-weight:650;font-size:16.5px;}
+  .plan-card .pmeta{
+    display:flex;justify-content:space-between;align-items:center;margin-top:6px;
+  }
+  .plan-card .pcount{font-size:12px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace;}
+  .plan-card .ptotal{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--gold);}
+  .plan-card.done{opacity:0.72;}
+  .plan-card.done .ptotal{color:var(--ink-soft);}
+  .plan-card .pbadge{
+    display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;
+    letter-spacing:.06em;text-transform:uppercase;background:var(--gold-soft);color:#7a5420;
+    padding:2px 7px;border-radius:5px;margin-top:6px;
+  }
+  .plan-card.done .pbadge{background:var(--line);color:var(--ink-soft);}
+
+  .fab-new-plan{
+    width:100%;border:1.5px dashed var(--line);background:transparent;border-radius:14px;
+    padding:16px;font-family:'Inter',sans-serif;font-weight:600;color:var(--ink-soft);
+    cursor:pointer;margin-bottom:22px;font-size:14px;
   }
 
+  /* Bottom nav */
+  .bottom-nav{
+    position:fixed;left:0;right:0;bottom:0;z-index:15;
+    background:var(--paper-raised);border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .bottom-nav .inner{
+    max-width:480px;margin:0 auto;display:flex;
+  }
+  .bottom-nav button{
+    flex:1;background:none;border:none;padding:11px 0 9px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    color:var(--ink-soft);font-family:'Inter',sans-serif;font-size:11.5px;font-weight:500;
+  }
+  .bottom-nav button .ic{font-size:18px;}
+  .bottom-nav button.active{color:var(--ink);}
+  .bottom-nav button.active .ic{color:var(--gold);}
+
+  /* Modal / sheet */
   .sheet-backdrop{
     position:fixed;inset:0;background:rgba(28,43,34,0.4);
-    display:none;align-items:flex-end;justify-content:center;z-index:20;
+    display:none;align-items:flex-end;justify-content:center;z-index:30;
   }
   .sheet-backdrop.open{display:flex;}
   .sheet{
@@ -180,6 +211,7 @@
   }
   .sheet-buttons .cancel{background:transparent;color:var(--ink-soft);}
   .sheet-buttons .confirm{background:var(--ink);color:var(--paper);}
+  .sheet-buttons .danger{background:var(--expense-soft);color:var(--expense);}
 
   .cur-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);}
   .cur-row:last-of-type{border-bottom:none;}
@@ -206,33 +238,147 @@
   }
   .settings-note{font-size:12.5px;color:var(--ink-soft);margin-top:14px;line-height:1.5;}
 
+  /* Full-screen plan detail overlay */
+  .plan-overlay{
+    position:fixed;inset:0;background:var(--paper);z-index:25;
+    display:none;flex-direction:column;
+  }
+  .plan-overlay.open{display:flex;}
+  .plan-overlay-head{
+    padding:16px 18px 12px;display:flex;align-items:center;gap:12px;
+    border-bottom:1px solid var(--line);flex-shrink:0;
+  }
+  .plan-overlay-head button.back{
+    background:none;border:none;font-size:20px;color:var(--ink);cursor:pointer;padding:2px 4px;
+  }
+  .plan-overlay-head input#planTitleInput{
+    flex:1;border:none;background:none;font-family:'Fraunces',serif;font-weight:650;
+    font-size:19px;color:var(--ink);padding:4px 0;
+  }
+  .plan-overlay-head input#planTitleInput:focus{outline:none;border-bottom:1.5px solid var(--gold);}
+  .plan-overlay-body{flex:1;overflow-y:auto;padding:14px 18px 10px;max-width:480px;width:100%;margin:0 auto;}
+  .plan-overlay-foot{
+    flex-shrink:0;border-top:1px solid var(--line);background:var(--paper-raised);
+    padding:14px 18px calc(14px + env(safe-area-inset-bottom));
+    max-width:480px;width:100%;margin:0 auto;
+  }
+  .plan-budget-summary{
+    background:var(--ink);color:var(--paper);border-radius:14px;padding:15px 16px;margin-bottom:14px;
+  }
+  .plan-budget-summary .lbl{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:rgba(238,241,234,0.55);
+  }
+  .plan-budget-summary .val{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:500;margin-top:2px;}
+  .plan-budget-summary .subrow{
+    display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;
+    border-top:1px dashed rgba(238,241,234,0.22);font-size:12.5px;font-family:'JetBrains Mono',monospace;
+    color:rgba(238,241,234,0.7);
+  }
+  .plan-item{
+    background:var(--paper-raised);border:1px solid var(--line);border-radius:12px;
+    padding:12px 14px;margin-bottom:8px;
+  }
+  .plan-item .pi-top{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+  .plan-item .pi-mark{
+    width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;flex-shrink:0;
+  }
+  .plan-item.deposit .pi-mark{background:var(--deposit-soft);color:var(--deposit);}
+  .plan-item.expense .pi-mark{background:var(--expense-soft);color:var(--expense);}
+  .plan-item .pi-note{flex:1;font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .plan-item .pi-cur{
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);
+    background:var(--line);padding:2px 7px;border-radius:6px;flex-shrink:0;
+  }
+  .plan-item .pi-del{background:none;border:none;color:var(--line);font-size:15px;cursor:pointer;padding:2px 4px;flex-shrink:0;}
+  .plan-item .pi-del:hover{color:var(--expense);}
+  .plan-item .pi-amounts{display:flex;gap:8px;}
+  .plan-item .pi-amt-col{flex:1;}
+  .plan-item .pi-amt-col label{
+    display:block;font-size:9.5px;font-family:'JetBrains Mono',monospace;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--ink-soft);margin-bottom:4px;
+  }
+  .plan-item .pi-amt-col input{
+    width:100%;padding:8px 9px;border-radius:8px;border:1px solid var(--line);
+    background:#fff;font-family:'JetBrains Mono',monospace;font-size:13.5px;color:var(--ink);
+  }
+  .plan-item .pi-amt-col.actual input{border-color:var(--gold);background:var(--gold-soft);}
+  .add-item-btn{
+    width:100%;border:1.5px dashed var(--line);background:transparent;border-radius:12px;
+    padding:13px;font-family:'Inter',sans-serif;font-weight:600;color:var(--ink-soft);
+    cursor:pointer;font-size:13.5px;margin-top:4px;
+  }
+  .done-summary-row{
+    display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;
+  }
+  .done-summary-row:last-child{border-bottom:none;}
+  .done-summary-row .amt{font-family:'JetBrains Mono',monospace;font-weight:500;}
+
   ::selection{background:var(--gold);color:var(--paper);}
 </style>
 </head>
 <body>
 <div class="app">
-  <header class="top">
-    <h1>Fund Ledger</h1>
-    <button id="settingsBtn">currencies ⚙</button>
-  </header>
 
-  <div class="passbook">
-    <div class="main-total">
-      <div class="main-label">Total in MGA</div>
-      <div class="main-amount" id="totalMGA">0 Ar</div>
+  <!-- ================= LEDGER PAGE ================= -->
+  <div class="page active" id="pageLedger">
+    <header class="top">
+      <h1>Fund Ledger</h1>
+      <button id="settingsBtn">currencies ⚙</button>
+    </header>
+
+    <div class="passbook">
+      <div class="main-total">
+        <div class="main-label-row">
+          <span class="main-label">Total</span>
+        </div>
+        <div class="main-amount" id="totalMain">0 Ar</div>
+        <div class="view-cur-row" id="viewCurRow"></div>
+        <div class="view-note" id="viewNote"></div>
+      </div>
+      <div class="breakdown" id="breakdown"></div>
     </div>
-    <div class="breakdown" id="breakdown"></div>
+
+    <div class="actions">
+      <button class="add-deposit" id="openDeposit">＋ Deposit</button>
+      <button class="add-expense" id="openExpense">－ Expense</button>
+    </div>
+
+    <div class="section-label">History</div>
+    <div id="list"></div>
   </div>
 
-  <div class="actions">
-    <button class="add-deposit" id="openDeposit">＋ Deposit</button>
-    <button class="add-expense" id="openExpense">－ Expense</button>
+  <!-- ================= PLANS PAGE ================= -->
+  <div class="page" id="pagePlans">
+    <header class="top">
+      <h1>Plans</h1>
+    </header>
+
+    <button class="fab-new-plan" id="newPlanBtn">＋ New expense / deposit plan</button>
+
+    <div class="section-label">In progress</div>
+    <div id="draftPlanList"></div>
+
+    <div class="section-label">Completed</div>
+    <div id="donePlanList"></div>
   </div>
 
-  <div class="section-label">History</div>
-  <div id="list"></div>
 </div>
 
+<!-- Bottom nav -->
+<div class="bottom-nav">
+  <div class="inner">
+    <button class="nav-btn active" data-page="pageLedger">
+      <span class="ic">▤</span><span>Ledger</span>
+    </button>
+    <button class="nav-btn" data-page="pagePlans">
+      <span class="ic">▦</span><span>Plans</span>
+    </button>
+  </div>
+</div>
+
+<!-- Add deposit/expense sheet -->
 <div class="sheet-backdrop" id="backdrop">
   <div class="sheet">
     <h2 id="sheetTitle">Add deposit</h2>
@@ -256,6 +402,7 @@
   </div>
 </div>
 
+<!-- Currency settings sheet -->
 <div class="sheet-backdrop" id="settingsBackdrop">
   <div class="sheet">
     <h2>Currencies</h2>
@@ -265,16 +412,76 @@
       <input type="number" id="newCurRate" placeholder="MGA per 1 unit" step="0.01" min="0">
       <button id="addCurBtn">Add</button>
     </div>
-    <p class="settings-note">MGA is your base currency and always equals 1. Rates you set here apply to new deposits and expenses only — past entries keep the rate that was active when you recorded them.</p>
+    <p class="settings-note">MGA is your base currency and always equals 1. Rates you set here apply to new deposits, expenses, and plan items only — past entries keep the rate that was active when you recorded them.</p>
     <div class="sheet-buttons">
       <button class="cancel" id="settingsCloseBtn">Done</button>
     </div>
   </div>
 </div>
 
+<!-- New plan sheet -->
+<div class="sheet-backdrop" id="newPlanBackdrop">
+  <div class="sheet">
+    <h2>New plan</h2>
+    <div class="field">
+      <label>Title</label>
+      <input type="text" id="newPlanTitle" placeholder="e.g. Weekend market shopping">
+    </div>
+    <div class="sheet-buttons">
+      <button class="cancel" id="newPlanCancelBtn">Cancel</button>
+      <button class="confirm" id="newPlanConfirmBtn">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add plan item sheet -->
+<div class="sheet-backdrop" id="itemBackdrop">
+  <div class="sheet">
+    <h2>Add planned item</h2>
+    <div class="field">
+      <label>Type</label>
+      <div class="cur-toggle" id="itemTypeToggle">
+        <button type="button" data-type="expense" class="active">Expense</button>
+        <button type="button" data-type="deposit">Deposit</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Estimated amount</label>
+      <input type="number" inputmode="decimal" id="itemAmountInput" placeholder="0.00" step="0.01" min="0">
+    </div>
+    <div class="field">
+      <label>Currency</label>
+      <div class="cur-toggle" id="itemCurToggle"></div>
+    </div>
+    <div class="field">
+      <label>Note (optional)</label>
+      <input type="text" id="itemNoteInput" placeholder="e.g. vegetables, taxi fare">
+    </div>
+    <div class="sheet-buttons">
+      <button class="cancel" id="itemCancelBtn">Cancel</button>
+      <button class="confirm" id="itemConfirmBtn">Add to plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Plan detail full-screen overlay -->
+<div class="plan-overlay" id="planOverlay">
+  <div class="plan-overlay-head">
+    <button class="back" id="planBackBtn">‹</button>
+    <input type="text" id="planTitleInput" placeholder="Plan title">
+    <button class="pi-del" id="deletePlanBtn" aria-label="Delete plan" style="font-size:18px;">🗑</button>
+  </div>
+  <div class="plan-overlay-body">
+    <div class="plan-budget-summary" id="planSummary"></div>
+    <div id="planItemList"></div>
+    <button class="add-item-btn" id="addItemBtn">＋ Add planned item</button>
+  </div>
+  <div class="plan-overlay-foot" id="planFoot"></div>
+</div>
+
 <script>
 const DB_NAME = 'fundledger';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 let db;
 
 function openDB(){
@@ -289,60 +496,85 @@ function openDB(){
       if(!_db.objectStoreNames.contains('settings')){
         _db.createObjectStore('settings', { keyPath:'key' });
       }
+      if(!_db.objectStoreNames.contains('plans')){
+        _db.createObjectStore('plans', { keyPath:'id', autoIncrement:true });
+      }
     };
     req.onsuccess = (e) => { db = e.target.result; resolve(db); };
     req.onerror = (e) => reject(e);
   });
 }
 
-function addTransaction(tx){
+function dbAdd(store, obj){
   return new Promise((resolve, reject) => {
-    const t = db.transaction('transactions','readwrite');
-    const req = t.objectStore('transactions').add(tx);
+    const t = db.transaction(store,'readwrite');
+    const req = t.objectStore(store).add(obj);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = (e) => reject(e);
+  });
+}
+function dbPut(store, obj){
+  return new Promise((resolve, reject) => {
+    const t = db.transaction(store,'readwrite');
+    const req = t.objectStore(store).put(obj);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = (e) => reject(e);
+  });
+}
+function dbDelete(store, id){
+  return new Promise((resolve, reject) => {
+    const t = db.transaction(store,'readwrite');
+    t.objectStore(store).delete(id);
+    t.oncomplete = () => resolve();
+    t.onerror = (e) => reject(e);
+  });
+}
+function dbGetAll(store){
+  return new Promise((resolve, reject) => {
+    const t = db.transaction(store,'readonly');
+    const req = t.objectStore(store).getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = (e) => reject(e);
+  });
+}
+function dbGet(store, id){
+  return new Promise((resolve, reject) => {
+    const t = db.transaction(store,'readonly');
+    const req = t.objectStore(store).get(id);
     req.onsuccess = () => resolve(req.result);
     req.onerror = (e) => reject(e);
   });
 }
 
-function deleteTransaction(id){
-  return new Promise((resolve, reject) => {
-    const t = db.transaction('transactions','readwrite');
-    t.objectStore('transactions').delete(id);
-    t.oncomplete = () => resolve();
-    t.onerror = (e) => reject(e);
-  });
+function addTransaction(tx){ return dbAdd('transactions', tx); }
+function deleteTransaction(id){ return dbDelete('transactions', id); }
+async function getAllTransactions(){
+  const all = await dbGetAll('transactions');
+  return all.sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
 }
 
-function getAllTransactions(){
+function setSetting(key, value){ return dbPut('settings', {key, value}); }
+async function getSetting(key, fallback){
+  const t = db.transaction('settings','readonly');
   return new Promise((resolve, reject) => {
-    const t = db.transaction('transactions','readonly');
-    const req = t.objectStore('transactions').getAll();
-    req.onsuccess = () => resolve(req.result.sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id));
-    req.onerror = (e) => reject(e);
-  });
-}
-
-function setSetting(key, value){
-  return new Promise((resolve, reject) => {
-    const t = db.transaction('settings','readwrite');
-    t.objectStore('settings').put({key, value});
-    t.oncomplete = () => resolve();
-    t.onerror = (e) => reject(e);
-  });
-}
-
-function getSetting(key, fallback){
-  return new Promise((resolve, reject) => {
-    const t = db.transaction('settings','readonly');
     const req = t.objectStore('settings').get(key);
     req.onsuccess = () => resolve(req.result ? req.result.value : fallback);
     req.onerror = (e) => reject(e);
   });
 }
 
+function addPlan(plan){ return dbAdd('plans', plan); }
+function putPlan(plan){ return dbPut('plans', plan); }
+function deletePlan(id){ return dbDelete('plans', id); }
+async function getAllPlans(){
+  const all = await dbGetAll('plans');
+  return all.sort((a,b) => (b.createdDate||'').localeCompare(a.createdDate||'') || b.id - a.id);
+}
+
 let currencies = [{ code:'MGA', rate:1 }, { code:'USD', rate:4500 }]; // rate = MGA per 1 unit
 let pendingType = 'deposit';
 let pendingCur = 'MGA';
+let viewCurrency = 'MGA';
 
 function fmtNum(n, decimals){
   return n.toLocaleString('en-US', {minimumFractionDigits:decimals, maximumFractionDigits:decimals});
@@ -356,8 +588,18 @@ function rateFor(code){
   return c ? c.rate : 1;
 }
 
-async function saveCurrencies(){
-  await setSetting('currencies', currencies);
+async function saveCurrencies(){ await setSetting('currencies', currencies); }
+
+/* ---------------- Ledger page ---------------- */
+
+function renderViewCurRow(){
+  const row = document.getElementById('viewCurRow');
+  row.innerHTML = currencies.map(c =>
+    '<button type="button" data-code="' + c.code + '" class="' + (c.code === viewCurrency ? 'active' : '') + '">' + c.code + '</button>'
+  ).join('');
+  row.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => { viewCurrency = btn.dataset.code; refreshBalances(); });
+  });
 }
 
 async function refreshBalances(){
@@ -375,13 +617,21 @@ async function refreshBalances(){
     totalMGA += signed * rate;
   }
 
-  document.getElementById('totalMGA').textContent = fmtAmount(totalMGA, 'MGA');
+  const shown = viewCurrency === 'MGA' ? totalMGA : totalMGA / rateFor(viewCurrency);
+  document.getElementById('totalMain').textContent = fmtAmount(shown, viewCurrency);
+
+  const viewNote = document.getElementById('viewNote');
+  viewNote.textContent = viewCurrency === 'MGA'
+    ? 'Sum of every entry at the rate it was recorded'
+    : "Converted from your MGA total at today's " + viewCurrency + " rate — for viewing only";
+
+  renderViewCurRow();
 
   const breakdown = document.getElementById('breakdown');
   const codes = currencies.map(c => c.code).filter(c => c !== 'MGA');
   breakdown.innerHTML = codes.map(code => {
     const bal = nativeBal[code] || 0;
-    return '<div class="row"><span class="cur-label">' + code + '</span><span class="cur-amount">' + fmtAmount(bal, code) + '</span></div>';
+    return '<div class="row"><span class="cur-label">' + code + ' balance</span><span class="cur-amount">' + fmtAmount(bal, code) + '</span></div>';
   }).join('');
 
   renderList(txs);
@@ -429,6 +679,18 @@ function escapeHtml(str){
   return d.innerHTML;
 }
 
+/* ---------------- Bottom nav ---------------- */
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(btn.dataset.page).classList.add('active');
+    if(btn.dataset.page === 'pagePlans') renderPlansPage();
+  });
+});
+
+/* ---------------- Add deposit/expense sheet ---------------- */
 const backdrop = document.getElementById('backdrop');
 const sheetTitle = document.getElementById('sheetTitle');
 const amountInput = document.getElementById('amountInput');
@@ -436,18 +698,21 @@ const noteInput = document.getElementById('noteInput');
 const curToggle = document.getElementById('curToggle');
 const rateHint = document.getElementById('rateHint');
 
-function buildCurToggle(){
-  curToggle.innerHTML = currencies.map(c =>
-    '<button type="button" data-cur="' + c.code + '">' + c.code + '</button>'
+function buildCurToggle(container, onPick, selected){
+  container.innerHTML = currencies.map(c =>
+    '<button type="button" data-cur="' + c.code + '" class="' + (c.code === selected ? 'active' : '') + '">' + c.code + '</button>'
   ).join('');
-  curToggle.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', () => setCur(btn.dataset.cur));
+  container.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      onPick(btn.dataset.cur);
+    });
   });
 }
 
 function setCur(code){
   pendingCur = code;
-  curToggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.cur === code));
   if(code === 'MGA'){
     rateHint.textContent = '';
   } else {
@@ -460,7 +725,7 @@ function openSheet(type){
   sheetTitle.textContent = type === 'deposit' ? 'Add deposit' : 'Add expense';
   amountInput.value = '';
   noteInput.value = '';
-  buildCurToggle();
+  buildCurToggle(curToggle, setCur, 'MGA');
   setCur('MGA');
   backdrop.classList.add('open');
   setTimeout(() => amountInput.focus(), 50);
@@ -487,6 +752,7 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
   refreshBalances();
 });
 
+/* ---------------- Currency settings sheet ---------------- */
 const settingsBackdrop = document.getElementById('settingsBackdrop');
 const currencyList = document.getElementById('currencyList');
 
@@ -517,6 +783,7 @@ function renderCurrencyList(){
   });
   currencyList.querySelectorAll('.rm').forEach(btn => {
     btn.addEventListener('click', async () => {
+      if(btn.dataset.code === viewCurrency) viewCurrency = 'MGA';
       currencies = currencies.filter(c => c.code !== btn.dataset.code);
       await saveCurrencies();
       renderCurrencyList();
@@ -551,6 +818,292 @@ document.getElementById('addCurBtn').addEventListener('click', async () => {
   refreshBalances();
 });
 
+/* ---------------- Plans page ---------------- */
+
+function planPlannedTotalMGA(plan){
+  let total = 0;
+  for(const it of plan.items){
+    const amt = it.plannedAmount;
+    const rate = it.currency === 'MGA' ? 1 : rateFor(it.currency);
+    total += (it.type === 'deposit' ? amt : -amt) * rate;
+  }
+  return total;
+}
+function planActualTotalMGA(plan){
+  let total = 0;
+  for(const it of plan.items){
+    const amt = (it.actualAmount !== null && it.actualAmount !== undefined && it.actualAmount !== '') ? it.actualAmount : it.plannedAmount;
+    const rate = it.currency === 'MGA' ? 1 : rateFor(it.currency);
+    total += (it.type === 'deposit' ? amt : -amt) * rate;
+  }
+  return total;
+}
+
+async function renderPlansPage(){
+  const plans = await getAllPlans();
+  const drafts = plans.filter(p => p.status === 'draft');
+  const done = plans.filter(p => p.status === 'done');
+
+  const draftList = document.getElementById('draftPlanList');
+  draftList.innerHTML = drafts.length === 0
+    ? '<div class="empty">No plans in progress. Create one before your next shopping trip.</div>'
+    : drafts.map(p => {
+        const total = planPlannedTotalMGA(p);
+        return '<div class="plan-card" data-id="' + p.id + '">' +
+            '<div class="ptitle">' + escapeHtml(p.title || 'Untitled plan') + '</div>' +
+            '<div class="pmeta">' +
+              '<span class="pcount">' + p.items.length + ' item' + (p.items.length === 1 ? '' : 's') + '</span>' +
+              '<span class="ptotal">Budget ' + fmtAmount(total, 'MGA') + '</span>' +
+            '</div>' +
+            '<span class="pbadge">Draft</span>' +
+          '</div>';
+      }).join('');
+
+  const doneList = document.getElementById('donePlanList');
+  doneList.innerHTML = done.length === 0
+    ? '<div class="empty">Confirmed plans will show up here.</div>'
+    : done.map(p => {
+        const total = planActualTotalMGA(p);
+        const dateStr = p.confirmedDate ? new Date(p.confirmedDate).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '';
+        return '<div class="plan-card done" data-id="' + p.id + '">' +
+            '<div class="ptitle">' + escapeHtml(p.title || 'Untitled plan') + '</div>' +
+            '<div class="pmeta">' +
+              '<span class="pcount">' + dateStr + '</span>' +
+              '<span class="ptotal">' + fmtAmount(total, 'MGA') + '</span>' +
+            '</div>' +
+            '<span class="pbadge">Done</span>' +
+          '</div>';
+      }).join('');
+
+  document.querySelectorAll('.plan-card').forEach(card => {
+    card.addEventListener('click', () => openPlanDetail(Number(card.dataset.id)));
+  });
+}
+
+document.getElementById('newPlanBtn').addEventListener('click', () => {
+  document.getElementById('newPlanTitle').value = '';
+  document.getElementById('newPlanBackdrop').classList.add('open');
+  setTimeout(() => document.getElementById('newPlanTitle').focus(), 50);
+});
+document.getElementById('newPlanCancelBtn').addEventListener('click', () => {
+  document.getElementById('newPlanBackdrop').classList.remove('open');
+});
+document.getElementById('newPlanBackdrop').addEventListener('click', (e) => {
+  if(e.target.id === 'newPlanBackdrop') e.target.classList.remove('open');
+});
+document.getElementById('newPlanConfirmBtn').addEventListener('click', async () => {
+  const title = document.getElementById('newPlanTitle').value.trim();
+  const plan = {
+    title: title || 'Untitled plan',
+    status: 'draft',
+    createdDate: new Date().toISOString(),
+    confirmedDate: null,
+    items: []
+  };
+  const id = await addPlan(plan);
+  document.getElementById('newPlanBackdrop').classList.remove('open');
+  renderPlansPage();
+  openPlanDetail(id);
+});
+
+/* ---- Plan detail overlay ---- */
+let currentPlan = null;
+const planOverlay = document.getElementById('planOverlay');
+const planTitleInput = document.getElementById('planTitleInput');
+const planItemList = document.getElementById('planItemList');
+const planSummary = document.getElementById('planSummary');
+const planFoot = document.getElementById('planFoot');
+
+async function openPlanDetail(id){
+  currentPlan = await dbGet('plans', id);
+  if(!currentPlan) return;
+  renderPlanDetail();
+  planOverlay.classList.add('open');
+}
+
+function renderPlanDetail(){
+  const isDone = currentPlan.status === 'done';
+  planTitleInput.value = currentPlan.title;
+  planTitleInput.disabled = isDone;
+
+  const plannedTotal = planPlannedTotalMGA(currentPlan);
+  const actualTotal = planActualTotalMGA(currentPlan);
+
+  if(isDone){
+    planSummary.innerHTML =
+      '<div class="lbl">Final total (MGA)</div>' +
+      '<div class="val">' + fmtAmount(actualTotal, 'MGA') + '</div>' +
+      '<div class="subrow"><span>Originally budgeted</span><span>' + fmtAmount(plannedTotal, 'MGA') + '</span></div>';
+  } else {
+    planSummary.innerHTML =
+      '<div class="lbl">Budget needed (MGA)</div>' +
+      '<div class="val">' + fmtAmount(plannedTotal, 'MGA') + '</div>' +
+      '<div class="subrow"><span>If actual prices used so far</span><span>' + fmtAmount(actualTotal, 'MGA') + '</span></div>';
+  }
+
+  if(currentPlan.items.length === 0){
+    planItemList.innerHTML = '<div class="empty">No items yet. Add what you expect to spend or deposit.</div>';
+  } else {
+    planItemList.innerHTML = currentPlan.items.map(it => {
+      const sign = it.type === 'deposit' ? '+' : '\u2212';
+      const note = it.note ? escapeHtml(it.note) : (it.type === 'deposit' ? 'Deposit' : 'Expense');
+      if(isDone){
+        const used = (it.actualAmount !== null && it.actualAmount !== undefined && it.actualAmount !== '') ? it.actualAmount : it.plannedAmount;
+        return '<div class="plan-item ' + it.type + '">' +
+            '<div class="pi-top">' +
+              '<div class="pi-mark">' + sign + '</div>' +
+              '<div class="pi-note">' + note + '</div>' +
+              '<span class="pi-cur">' + it.currency + '</span>' +
+            '</div>' +
+            '<div class="done-summary-row"><span>Confirmed amount</span><span class="amt">' + sign + fmtAmount(used, it.currency) + '</span></div>' +
+          '</div>';
+      }
+      return '<div class="plan-item ' + it.type + '" data-item="' + it.localId + '">' +
+          '<div class="pi-top">' +
+            '<div class="pi-mark">' + sign + '</div>' +
+            '<div class="pi-note">' + note + '</div>' +
+            '<span class="pi-cur">' + it.currency + '</span>' +
+            '<button class="pi-del" data-item="' + it.localId + '" aria-label="Remove item">\u2715</button>' +
+          '</div>' +
+          '<div class="pi-amounts">' +
+            '<div class="pi-amt-col">' +
+              '<label>Planned</label>' +
+              '<input type="number" step="0.01" min="0" value="' + it.plannedAmount + '" data-field="planned" data-item="' + it.localId + '">' +
+            '</div>' +
+            '<div class="pi-amt-col actual">' +
+              '<label>Actual</label>' +
+              '<input type="number" step="0.01" min="0" placeholder="same as planned" value="' + (it.actualAmount ?? '') + '" data-field="actual" data-item="' + it.localId + '">' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  if(isDone){
+    planFoot.innerHTML = '<div class="sheet-buttons"><button class="cancel" id="planCloseDoneBtn">Close</button></div>';
+    document.getElementById('planCloseDoneBtn').addEventListener('click', closePlanDetail);
+  } else {
+    planFoot.innerHTML =
+      '<div class="sheet-buttons">' +
+        '<button class="danger" id="planDeleteBtn2">Delete plan</button>' +
+        '<button class="confirm" id="planConfirmDoneBtn">Confirm plan \u2192 add to ledger</button>' +
+      '</div>';
+    document.getElementById('planDeleteBtn2').addEventListener('click', handleDeletePlan);
+    document.getElementById('planConfirmDoneBtn').addEventListener('click', handleConfirmPlan);
+    document.getElementById('addItemBtn').style.display = '';
+
+    planItemList.querySelectorAll('input[data-field]').forEach(inp => {
+      inp.addEventListener('change', async () => {
+        const item = currentPlan.items.find(i => i.localId === inp.dataset.item);
+        if(!item) return;
+        const val = inp.value === '' ? '' : parseFloat(inp.value);
+        if(inp.dataset.field === 'planned'){
+          if(val === '' || val < 0) return;
+          item.plannedAmount = val;
+        } else {
+          item.actualAmount = val === '' ? null : val;
+        }
+        await putPlan(currentPlan);
+        renderPlanDetail();
+      });
+    });
+    planItemList.querySelectorAll('.pi-del').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        currentPlan.items = currentPlan.items.filter(i => i.localId !== btn.dataset.item);
+        await putPlan(currentPlan);
+        renderPlanDetail();
+      });
+    });
+  }
+  if(document.getElementById('addItemBtn')) document.getElementById('addItemBtn').style.display = isDone ? 'none' : '';
+}
+
+planTitleInput.addEventListener('change', async () => {
+  if(!currentPlan || currentPlan.status === 'done') return;
+  currentPlan.title = planTitleInput.value.trim() || 'Untitled plan';
+  await putPlan(currentPlan);
+});
+
+function closePlanDetail(){
+  planOverlay.classList.remove('open');
+  currentPlan = null;
+  renderPlansPage();
+}
+document.getElementById('planBackBtn').addEventListener('click', closePlanDetail);
+
+async function handleDeletePlan(){
+  if(!currentPlan) return;
+  await deletePlan(currentPlan.id);
+  closePlanDetail();
+}
+
+async function handleConfirmPlan(){
+  if(!currentPlan || currentPlan.items.length === 0) return;
+  for(const it of currentPlan.items){
+    const amount = (it.actualAmount !== null && it.actualAmount !== undefined && it.actualAmount !== '') ? it.actualAmount : it.plannedAmount;
+    await addTransaction({
+      type: it.type,
+      currency: it.currency,
+      amount: amount,
+      rateAtTime: it.currency === 'MGA' ? 1 : rateFor(it.currency),
+      note: it.note || currentPlan.title,
+      date: new Date().toISOString()
+    });
+  }
+  currentPlan.status = 'done';
+  currentPlan.confirmedDate = new Date().toISOString();
+  await putPlan(currentPlan);
+  await refreshBalances();
+  renderPlanDetail();
+}
+
+/* ---- Add plan item sheet ---- */
+const itemBackdrop = document.getElementById('itemBackdrop');
+const itemTypeToggle = document.getElementById('itemTypeToggle');
+const itemAmountInput = document.getElementById('itemAmountInput');
+const itemCurToggle = document.getElementById('itemCurToggle');
+const itemNoteInput = document.getElementById('itemNoteInput');
+let pendingItemType = 'expense';
+let pendingItemCur = 'MGA';
+
+itemTypeToggle.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    itemTypeToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    pendingItemType = btn.dataset.type;
+  });
+});
+
+document.getElementById('addItemBtn').addEventListener('click', () => {
+  itemAmountInput.value = '';
+  itemNoteInput.value = '';
+  pendingItemType = 'expense';
+  itemTypeToggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.type === 'expense'));
+  buildCurToggle(itemCurToggle, (c) => pendingItemCur = c, 'MGA');
+  pendingItemCur = 'MGA';
+  itemBackdrop.classList.add('open');
+  setTimeout(() => itemAmountInput.focus(), 50);
+});
+document.getElementById('itemCancelBtn').addEventListener('click', () => itemBackdrop.classList.remove('open'));
+itemBackdrop.addEventListener('click', (e) => { if(e.target === itemBackdrop) itemBackdrop.classList.remove('open'); });
+
+document.getElementById('itemConfirmBtn').addEventListener('click', async () => {
+  const amount = parseFloat(itemAmountInput.value);
+  if(!amount || amount <= 0){ itemAmountInput.focus(); return; }
+  currentPlan.items.push({
+    localId: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    type: pendingItemType,
+    currency: pendingItemCur,
+    plannedAmount: amount,
+    actualAmount: null,
+    note: itemNoteInput.value.trim()
+  });
+  await putPlan(currentPlan);
+  itemBackdrop.classList.remove('open');
+  renderPlanDetail();
+});
+
+/* ---------------- Init ---------------- */
 (async function init(){
   await openDB();
 
